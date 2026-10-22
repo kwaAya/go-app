@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>GO – app prototype</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600;800&family=Inter:wght@400;500;600&display=swap">
+<style>
+:root{color-scheme:dark;--black:#050505;--panel:#111112;--line:#2a2a2c;--text:#f4efe6;--muted:#a39d92;--gold:#d9a93f;--red:#e5252a;
+--gm:linear-gradient(135deg,#f7e2a0,#d9a93f 45%,#8f6616 70%,#f1d27c);
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--black);color:var(--text);font:400 16px/1.6 Inter,system-ui,sans-serif}
+h1,h2,h3{font-family:Poppins,Inter,sans-serif;margin:0;line-height:1.15}
+main{max-width:980px;margin:0 auto;padding:36px 20px 70px}
+.metal{background:var(--gm);-webkit-background-clip:text;background-clip:text;color:transparent}
+h1{font-size:clamp(32px,6vw,52px);font-weight:800}
+.lede{color:var(--muted);max-width:56ch}
+.stage{display:grid;grid-template-columns:auto 1fr;gap:44px;align-items:center;margin-top:34px}
+.phone{--acc:#ff6a00;--car:#3b82f6;--nav:#111112;width:340px;height:690px;border-radius:44px;padding:8px;background:var(--gm);position:relative;box-shadow:0 30px 80px rgba(255,106,0,.16)}
+.phone[data-mode=women]{--acc:#ff5c9d;--car:#e5252a;--nav:linear-gradient(90deg,#ff5c9d,#ff86b8)}
+.phone[data-mode=kids]{--acc:#d9a93f;--car:#d9a93f}
+.scr{width:100%;height:100%;border-radius:36px;background:#000;overflow:hidden;display:flex;flex-direction:column;position:relative}
+#welcome{position:absolute;inset:0;z-index:5;background:radial-gradient(120% 60% at 50% 0%,#5a2600,#000 65%);display:flex;flex-direction:column;align-items:center;padding:56px 20px 22px}
+#welcome.hide{display:none}
+.wl{width:210px;overflow:visible;cursor:pointer;touch-action:manipulation;outline:none}
+.wl:focus-visible{outline:3px solid var(--gold);outline-offset:6px;border-radius:12px}
+.tag{letter-spacing:.2em;font:500 11px Inter,sans-serif;color:var(--muted);margin-top:6px}
+.wt{font:800 26px Poppins,sans-serif;margin-top:auto}
+.wt b{color:#ff6a00}
+.pick{width:100%;display:flex;align-items:center;gap:12px;border:1.5px solid #ff6a00;border-radius:20px;background:rgba(0,0,0,.6);color:var(--text);padding:12px 14px;margin-top:12px;cursor:pointer;text-align:left;font:400 12px Inter,sans-serif}
+.pick:hover{border-color:var(--gold)}
+.pick strong{display:block;font:800 22px Poppins,sans-serif;color:#ff6a00}
+.pick .ar{margin-left:auto;width:34px;height:34px;border-radius:50%;background:var(--gm);color:#000;display:grid;place-items:center;font-weight:800}
+.soon{font-size:12px;color:var(--gold);margin-top:10px;min-height:18px;text-align:center}
+.head{padding:16px 16px 8px}
+.head.row .chip,.head.row .metal,.head.row .badge{white-space:nowrap}
+.modes{display:flex;background:#161617;border-radius:14px;padding:4px;gap:4px}
+.modes button{flex:1;border:0;border-radius:11px;padding:9px 4px;background:transparent;color:var(--muted);font:600 13px Poppins,sans-serif;cursor:pointer}
+.modes button[aria-pressed=true]{background:var(--acc);color:#000}
+.body{flex:1;min-height:0;display:flex;flex-direction:column;padding:0 16px;overflow-y:auto}
+.pane{display:none;flex:1;min-height:0;flex-direction:column}
+.pane.on{display:flex}
+.map{flex:1;min-height:140px;border-radius:20px;overflow:hidden;background:#0e0e0f;border:1px solid #3a2e12}
+.map svg{width:100%;height:100%;display:block}
+.sheet{position:relative;background:var(--panel);border-radius:20px;padding:14px;margin:10px 0}
+.sheet::before{content:'';position:absolute;top:0;left:18px;right:18px;height:1px;background:linear-gradient(90deg,transparent,#f1d27c,transparent);opacity:.75}
+.sheet h3{font-size:17px;font-weight:600;margin-bottom:6px}
+.note{color:var(--muted);font-size:13px;margin:5px 0 0}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0}
+.chip{background:#1b1b1d;border:1px solid var(--line);color:var(--text);border-radius:999px;padding:6px 11px;font:500 13px Inter,sans-serif;cursor:pointer}
+.chip[aria-pressed=true]{border-color:var(--acc);color:var(--acc)}
+.tiers{display:grid;gap:6px;margin:6px 0}
+.tier{display:flex;justify-content:space-between;align-items:center;border:1px solid var(--line);background:#161617;color:var(--text);border-radius:14px;padding:9px 12px;cursor:pointer;font:600 14px Poppins,sans-serif;text-align:left}
+.tier small{display:block;font:400 11px Inter,sans-serif;color:var(--muted)}
+.tier[aria-pressed=true]{border-width:2px}
+.tier[data-t="0"][aria-pressed=true]{border-color:#ff6a00}
+.tier[data-t="1"][aria-pressed=true]{border-color:var(--gold);background:#1c1608}
+.tier[data-t="2"]{background:#000;border-color:#5b4515}
+.tier[data-t="2"][aria-pressed=true]{border-color:#f1d27c}
+.btn{display:block;width:100%;border:0;border-radius:14px;padding:13px;font:600 15px Poppins,sans-serif;cursor:pointer;background:var(--acc);color:#000;margin-top:8px;box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 8px 20px -10px var(--acc);transition:transform .15s ease-out,filter .15s}
+.btn:active{transform:scale(.98)}
+.btn:hover{filter:brightness(1.08)}
+.btn.red{background:transparent;color:var(--red);border:1px solid var(--red);box-shadow:none}
+.btn.ghost{background:transparent;color:var(--text);border:1px solid var(--line);box-shadow:none}
+#sos{background:var(--red);color:#fff;border-color:var(--red);margin-top:14px;padding:16px;box-shadow:0 10px 26px -10px rgba(229,37,42,.8)}
+.btn .ic{width:18px;height:18px;vertical-align:-3px;margin-right:6px}
+.badge{display:inline-block;border-radius:999px;padding:3px 10px;font:600 12px Inter,sans-serif;background:var(--acc);color:#000}
+.row{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.tabs{position:relative;display:flex;background:var(--nav);padding:10px 6px calc(8px + env(safe-area-inset-bottom,0px))}
+.tabs::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--gold) 30%,#f1d27c 50%,var(--gold) 70%,transparent)}
+.tabs button{position:relative;flex:1;background:none;border:0;color:var(--muted);font:500 11px Inter,sans-serif;padding:4px 0;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:3px;transition:color .2s ease-out}
+.tabs button[aria-current=true]{color:var(--acc);font-weight:600}
+.tabs button[aria-current=true]::before{content:'';position:absolute;top:-10px;width:24px;height:2px;border-radius:2px;background:var(--gm)}
+.ic{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.ico{width:48px;height:48px;border-radius:15px;display:grid;place-items:center;flex:none;color:#f1d27c;border:1.5px solid transparent;background:linear-gradient(#0b0b0c,#0b0b0c) padding-box,var(--gm) border-box}
+.ico .ic{width:26px;height:26px}
+.pick .ar .ic{width:18px;height:18px;stroke:#000;stroke-width:2.4}
+.sprite{position:absolute;width:0;height:0;overflow:hidden}
+.phone[data-mode=women] .tabs button{color:#3a0a1d}
+.phone[data-mode=women] .tabs button[aria-current=true]{color:#000;font-weight:700}
+.phone[data-mode=women] .tabs button[aria-current=true]::before{background:#000}
+#sosov{position:absolute;inset:0;z-index:8;background:rgba(0,0,0,.9);display:grid;place-items:center;padding:24px;text-align:center}#sosov.hide{display:none}
+.sosc{width:100%}.sosc h3{font-size:22px;margin:10px 0 4px}
+.sosring{width:132px;height:132px;margin:0 auto;border-radius:50%;display:grid;place-items:center;border:3px solid var(--red);background:radial-gradient(circle,#3a0709,#0a0000);font:800 56px Poppins,sans-serif;color:#fff;animation:sp 1s ease-out infinite}
+.sosring.ok{border-color:#2fbf71;background:radial-gradient(circle,#0a3a1e,#000);animation:none;color:#2fbf71}.sosring .ic{width:56px;height:56px;stroke-width:2.4}
+@keyframes sp{0%{box-shadow:0 0 0 0 rgba(229,37,42,.55)}100%{box-shadow:0 0 0 26px rgba(229,37,42,0)}}
+.sosl{text-align:left;margin:14px 0 0;padding:0;list-style:none}.sosl li{display:flex;gap:10px;align-items:center;padding:8px 0;border-top:1px solid var(--line);font-size:13px}.sosl .ic{width:18px;height:18px;color:#2fbf71}
+button:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.trip{border-bottom:1px solid var(--line);padding:10px 0;display:flex;justify-content:space-between}
+.side h2{font-size:24px;margin-bottom:10px}
+.cards{display:grid;gap:12px;margin-top:14px}
+.card{border:1px solid var(--line);background:var(--panel);border-radius:16px;padding:14px 16px}
+.card b{font:600 16px Poppins,sans-serif}
+.card p{margin:4px 0 0;color:var(--muted);font-size:14px}
+.card.gold{border-color:#6d5420}
+#driver{position:absolute;inset:0;z-index:4;background:#000;display:flex;flex-direction:column}#driver.hide{display:none}
+.dpane{display:none}.dpane.on{display:block}
+.dmap{height:170px;border-radius:20px;overflow:hidden;background:#0e0e0f;border:1px solid #3a2e12}.dmap svg{width:100%;height:100%;display:block}
+.big{font:800 34px Poppins,sans-serif}
+.bar{height:6px;border-radius:3px;background:#222;overflow:hidden;margin-top:8px}.bar i{display:block;height:100%;background:#ff6a00;width:100%}
+.plan{border:1px solid var(--line);border-radius:14px;padding:10px 12px;margin-top:8px}.plan.best{border-color:var(--gold)}
+.swr{display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-top:1px solid var(--line)}
+.vt{font:600 11px Inter,sans-serif;border-radius:999px;padding:2px 8px;border:1px solid var(--gold);color:var(--gold)}
+input[type=range]{width:100%;accent-color:#ff6a00}
+@media (max-width:840px){.stage{grid-template-columns:1fr;justify-items:center}.side{width:100%}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}.sosring{animation:none!important}}
+</style>
+</head>
+<body>
+<main>
+  <h1>GO <span class="metal">app prototype</span></h1>
+  <p class="lede">Pods 1 to 5: welcome screen, rider app, driver app, logo reveal, icons and SOS. Pick a role to try it. Orange and black from his brand, with the gold finish running through the frame, prices and top-tier rides.</p>
+  <div class="stage">
+    <svg class="sprite" aria-hidden="true" focusable="false"><defs>
+<symbol id="i-home" viewBox="0 0 24 24"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></symbol>
+<symbol id="i-trips" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></symbol>
+<symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 4.5-3.2 8-8 9-4.8-1-8-4.5-8-9V6z"/><path d="M8.5 12l2.5 2.5 5-5"/></symbol>
+<symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="4"/><path d="M4 21c0-4 3.6-6 8-6s8 2 8 6"/></symbol>
+<symbol id="i-drive" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2.4"/><path d="M3.2 11h6.4M14.4 11h6.4M12 14.4V21"/></symbol>
+<symbol id="i-wallet" viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="3"/><path d="M3 10h18"/><circle cx="16.5" cy="14.5" r="1"/></symbol>
+<symbol id="i-layers" viewBox="0 0 24 24"><path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5"/></symbol>
+<symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></symbol>
+<symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+<symbol id="i-share" viewBox="0 0 24 24"><circle cx="6" cy="12" r="2.5"/><circle cx="17.5" cy="6" r="2.5"/><circle cx="17.5" cy="18" r="2.5"/><path d="M8.2 10.8l7-3.6M8.2 13.2l7 3.6"/></symbol>
+<symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+</defs></svg>
+<div class="phone" id="phone" data-mode="std"><div class="scr">
+      <div id="welcome">
+        <svg class="wl" id="wl" viewBox="0 0 200 96" role="button" tabindex="0" aria-label="GO logo. Tap to play the logo animation.">
+          <path id="lr" d="M-60 98H300" stroke="#5b4515" stroke-width="3" stroke-dasharray="10 8" fill="none" opacity="0"/>
+          <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f7e2a0"/><stop offset=".5" stop-color="#d9a93f"/><stop offset="1" stop-color="#8f6616"/></linearGradient></defs>
+          <text x="6" y="80" font-family="Poppins,sans-serif" font-weight="800" font-size="96" fill="#fff">G</text>
+          <g id="lo"><circle cx="146" cy="48" r="44" fill="#ff6a00"/><circle cx="146" cy="48" r="44" fill="none" stroke="url(#g)" stroke-width="2.5"/>
+          <circle cx="146" cy="48" r="26" fill="#000"/>
+          <path d="M146 33a9 9 0 0 1 9 9c0 7-9 18-9 18s-9-11-9-18a9 9 0 0 1 9-9z" fill="url(#g)"/><circle cx="146" cy="42" r="3.5" fill="#000"/></g>
+          <g id="lc" opacity="0"><g transform="translate(146 48)"><path d="M-12 -4L-7 -13H9L15 -4Z" fill="#ff6a00" stroke="url(#g)" stroke-width="1.5" stroke-linejoin="round"/><rect x="-24" y="-4" width="48" height="14" rx="5" fill="#ff6a00" stroke="url(#g)" stroke-width="1.5"/><path d="M-9 -5L-5.5 -11H0V-5ZM2 -5V-11H7L10.5 -5Z" fill="#000" opacity=".6"/><circle cx="23" cy="3" r="2" fill="#f7e2a0"/><circle cx="-13" cy="10" r="5" fill="#000" stroke="url(#g)" stroke-width="1.8"/><circle cx="13" cy="10" r="5" fill="#000" stroke="url(#g)" stroke-width="1.8"/></g></g>
+        </svg>
+        <div class="tag">YOUR CITY · YOUR RIDE</div>
+        <div class="wt">Welcome to <b>GO</b></div>
+        <p class="note" style="margin-top:2px">Choose how you want to get started</p>
+        <button class="pick" id="pd"><span class="ico"><svg class="ic" aria-hidden="true"><use href="#i-drive"/></svg></span><span>Sign in or up as a<strong>Driver</strong>Drive. Earn. Be your own boss.</span><span class="ar"><svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></span></button>
+        <button class="pick" id="pr"><span class="ico"><svg class="ic" aria-hidden="true"><use href="#i-pin"/></svg></span><span>Sign in or up as a<strong>Rider</strong>Get there. Go further.</span><span class="ar"><svg class="ic" aria-hidden="true"><use href="#i-arrow"/></svg></span></button>
+        <div class="soon" id="soon">&nbsp;</div>
+      </div>
+      <div id="driver" class="hide">
+<div class="head row"><button class="chip" id="dsw">← Switch role</button><span class="metal" style="font:800 20px Poppins,sans-serif">GO Driver</span><span class="badge" id="dst" style="background:#1b1b1d;color:var(--muted)">Offline</span></div>
+<div class="body">
+<div class="dpane on" id="d-home"><div class="dmap"><svg viewBox="0 0 300 200" preserveAspectRatio="xMidYMid slice" aria-label="Map"><g stroke="#232325" stroke-width="14" fill="none" stroke-linecap="round"><path d="M20 160H290M20 90H290M60 10V190M170 10V190M250 10V190"/></g><circle cx="170" cy="90" r="14" fill="#ff6a00" opacity=".25"/><circle cx="170" cy="90" r="6" fill="#ff6a00" stroke="#000" stroke-width="2"/></svg></div><div class="sheet" id="dsheet"></div></div>
+<div class="dpane" id="d-earn"><div class="sheet"><h3>Today</h3><div class="big metal" id="dtoday">R0</div><p class="note" id="dtn">0 trips</p></div>
+<div class="sheet"><h3>Compare plans</h3><div class="row"><span class="note">Trips per day</span><b id="dtv">6</b></div><input type="range" id="dtrips" min="1" max="14" value="6" aria-label="Trips per day"><p class="note">Sample fare R80, 26 working days a month.</p>
+<div class="plan"><div class="row"><b>GO Standard</b><span class="note">10% commission</span></div><div class="big" style="font-size:22px" id="ds1"></div></div>
+<div class="plan" id="dpbox"><div class="row"><b>GO Plus</b><span class="note">R199/mo + 6%</span></div><div class="big" style="font-size:22px" id="ds2"></div></div><p class="note" id="dadv"></p></div></div>
+<div class="dpane" id="d-modes"><div class="sheet"><h3>Ride modes</h3><p class="note">Standard is on once you’re approved. The others need extra checks.</p>
+<div class="swr"><span>Standard</span><span class="badge">Active</span></div>
+<div class="swr"><span>Women Rider<br><span class="note">Women drivers only, opt-in</span></span><span class="vt">Verify</span></div>
+<div class="swr"><span>GO Kids<br><span class="note">Police clearance, child-safety check</span></span><span class="vt">Verify</span></div></div>
+<div class="sheet"><h3>Documents</h3><div class="swr"><span>ID and licence</span><span class="badge">Approved</span></div><div class="swr"><span>Vehicle and plate</span><span class="badge">Approved</span></div><div class="swr"><span>Operating permit</span><span class="vt">Pending</span></div></div></div>
+</div>
+<nav class="tabs" id="dtabs" aria-label="Driver"><button data-p="home" aria-current="true"><svg class="ic" aria-hidden="true"><use href="#i-drive"/></svg><span>Drive</span></button><button data-p="earn" aria-current="false"><svg class="ic" aria-hidden="true"><use href="#i-wallet"/></svg><span>Earnings</span></button><button data-p="modes" aria-current="false"><svg class="ic" aria-hidden="true"><use href="#i-layers"/></svg><span>Modes</span></button></nav>
+</div>
+<div class="head"><button class="chip" id="rsw" style="margin:0 0 8px">← Switch role</button><div class="modes" id="modes" role="group" aria-label="Ride mode">
+        <button data-m="std" aria-pressed="true">Standard</button><button data-m="women" aria-pressed="false">Women</button><button data-m="kids" aria-pressed="false">Kids</button></div></div>
+      <div class="body">
+        <div class="pane on" id="p-home">
+          <div class="map"><svg viewBox="0 0 300 300" preserveAspectRatio="xMidYMid slice" aria-label="Live map">
+            <g stroke="#232325" stroke-width="14" fill="none" stroke-linecap="round"><path d="M20 260H290M20 180H290M20 90H290M60 20V290M160 20V290M250 20V290"/></g>
+            <path id="route" d="M60 260V180H160V90H250" fill="none" stroke="var(--acc)" stroke-width="4" stroke-dasharray="2 8" stroke-linecap="round"/>
+            <circle cx="250" cy="90" r="9" fill="var(--acc)" opacity=".35"/><circle cx="250" cy="90" r="4" fill="var(--acc)"/>
+            <g id="car"><rect x="-8" y="-5" width="16" height="10" rx="3" fill="var(--car)" stroke="#000" stroke-width="1.5"/><rect x="1" y="-3.5" width="4" height="7" rx="1" fill="#000" opacity=".5"/></g></svg></div>
+          <div class="sheet" id="sheet"></div>
+        </div>
+        <div class="pane" id="p-trips"><div class="sheet"><h3>Your trips</h3>
+          <div class="trip"><span>Home to Town centre<br><span class="note">GO</span></span><b class="metal">R45</b></div>
+          <div class="trip"><span>Station to Hospital<br><span class="note">Women</span></span><b class="metal">R60</b></div>
+          <div class="trip"><span>Home to School<br><span class="note">Kids</span></span><b class="metal">R55</b></div></div></div>
+        <div class="pane" id="p-safety"><div class="sheet"><h3>Safety</h3>
+          <p class="note">Share your trip, check your driver’s plate and photo, and get help in one tap.</p>
+          <button class="btn ghost" id="share" aria-pressed="false"><svg class="ic" aria-hidden="true"><use href="#i-share"/></svg><span>Share live trip</span></button><p class="note" id="shn" aria-live="polite"></p><button class="btn red" id="sos">SOS: get help now</button><p class="note">Sample only. Nothing is sent from this prototype.</p></div></div>
+        <div class="pane" id="p-acct"><div class="sheet"><h3>Core voice</h3>
+          <p class="note">A setting, separate from your mode.</p>
+          <div class="chips" id="voices"><button class="chip" data-v="f" aria-pressed="true">Female core</button><button class="chip" data-v="m" aria-pressed="false">Male core</button><button class="chip" data-v="off" aria-pressed="false">Off</button></div>
+          <button class="btn ghost" id="test">Test voice</button>
+          <button class="btn ghost" id="sw">Switch role</button></div></div>
+      </div>
+      <nav class="tabs" id="tabs" aria-label="Main">
+        <button data-p="home" aria-current="true"><svg class="ic" aria-hidden="true"><use href="#i-home"/></svg><span>Home</span></button><button data-p="trips" aria-current="false"><svg class="ic" aria-hidden="true"><use href="#i-trips"/></svg><span>Trips</span></button><button data-p="safety" aria-current="false"><svg class="ic" aria-hidden="true"><use href="#i-shield"/></svg><span>Safety</span></button><button data-p="acct" aria-current="false"><svg class="ic" aria-hidden="true"><use href="#i-user"/></svg><span>Account</span></button></nav>
+      <div id="sosov" class="hide" role="alertdialog" aria-modal="true" aria-labelledby="sost"><div class="sosc" id="sosc"></div></div>
+    </div></div>
+    <div class="side">
+      <h2>What’s in this pod</h2>
+      <div class="cards">
+        <div class="card"><b>Welcome and role picker</b><p>His layout, with the new G and pin logo and a gold ring.</p></div>
+        <div class="card"><b>Rider app, three modes</b><p>Standard, Women (pink nav) and Kids (gold, PIN handover), with voice and a moving car.</p></div>
+        <div class="card gold"><b>Ride types</b><p>GO (orange), GO Comfort (gold) and GO Pro (black with a gold edge). Sample prices only.</p></div>
+        <div class="card"><b>Driver app (new)</b><p>Go online, accept a trip, earnings, plan comparison and ride-mode verification.</p></div><div class="card"><b>Next pods</b><p>Tap the GO logo on the welcome screen to play the reveal. Admin and web are in their own page. Line icons, gold detailing and a working SOS are in. Still to come: map polish and real data.</p></div>
+      </div>
+    </div>
+  </div>
+</main>
+<script>
+(function(){
+  var phone=document.getElementById('phone'),sheet=document.getElementById('sheet'),wel=document.getElementById('welcome');
+  var mode='std',voice='f',dest='Town centre',tier=0,timer=null,state='idle',P=[45,65,95],N=['GO','GO Comfort','GO Pro'];
+  var route=document.getElementById('route'),car=document.getElementById('car'),L=route.getTotalLength();
+  function place(t){var p=route.getPointAtLength(t*L),q=route.getPointAtLength(Math.min(L,t*L+2));car.setAttribute('transform','translate('+p.x+' '+p.y+') rotate('+Math.atan2(q.y-p.y,q.x-p.x)*180/Math.PI+')')}
+  place(0);
+  function say(t){if(voice==='off'||!('speechSynthesis' in window))return;
+    var u=new SpeechSynthesisUtterance(t),vs=speechSynthesis.getVoices(),re=voice==='f'?/female|samantha|zira|susan|karen|moira|tessa/i:/male|daniel|david|alex|james|fred/i,m=null;
+    for(var i=0;i<vs.length;i++){if(re.test(vs[i].name)&&(voice==='f'||!/female/i.test(vs[i].name))){m=vs[i];break}}
+    if(m)u.voice=m;u.pitch=voice==='f'?1.15:.75;u.rate=.95;speechSynthesis.cancel();speechSynthesis.speak(u)}
+  function chips(l,k){return '<div class="chips" data-k="'+k+'">'+l.map(function(x,i){return '<button class="chip" aria-pressed="'+(i===0)+'">'+x+'</button>'}).join('')+'</div>'}
+  function fare(){return mode==='kids'?55:mode==='women'?60:P[tier]}
+  function render(){var h='',D=['Town centre','Bus rank','Train station','Hospital'];
+    if(state==='idle'){
+      if(mode==='std')h='<h3>Where to?</h3>'+chips(D,'d')+'<div class="tiers">'+N.map(function(n,i){return '<button class="tier" data-t="'+i+'" aria-pressed="'+(i===tier)+'"><span>'+n+'<small>'+['Everyday ride','Newer car, more room','Top-rated drivers'][i]+'</small></span><span>R'+P[i]+'</span></button>'}).join('')+'</div><button class="btn" id="go">Request '+N[tier]+'</button>';
+      if(mode==='women')h='<div class="row"><h3>Women Rider</h3><span class="badge">Women drivers</span></div>'+chips(D,'d')+'<p class="note">Matched with verified women drivers who opted in.</p><button class="btn" id="go">Request Women Rider</button>';
+      if(mode==='kids')h='<div class="row"><h3>GO Kids</h3><span class="badge">Vetted drivers</span></div><p class="note">Who is riding?</p>'+chips(['Lerato, 8','Sipho, 11'],'c')+'<p class="note">Where to?</p>'+chips(['Town primary school','Home'],'d')+'<p class="note">A parent approves each trip and gets a PIN for pickup.</p><button class="btn" id="go">Request GO Kids</button>';
+    }else if(state==='run'){h='<h3>'+(mode==='kids'?'Your child’s ride is live':'Your driver is on the way')+'</h3><p class="note" id="eta">Driver nearby soon</p>'+(mode==='kids'?'<p class="note">Pickup PIN: <b style="color:var(--acc)">4821</b>. Share only at pickup.</p>':'<p class="note">Silver Toyota Etios, ABC 123</p>')+'<button class="btn red" id="cancel">Cancel ride</button>';
+    }else h='<h3>You’ve arrived</h3><div style="font:800 34px Poppins,sans-serif;text-align:center" class="metal">R'+fare()+'</div><p class="note" style="text-align:center">'+(mode==='kids'?'Arrived safely at '+dest+'. Parent notified.':'Rate your driver and you’re done.')+'</p><button class="btn" id="done">Done</button>';
+    sheet.innerHTML=h;
+    sheet.querySelectorAll('.chip').forEach(function(c){c.onclick=function(){c.parentNode.querySelectorAll('.chip').forEach(function(x){x.setAttribute('aria-pressed','false')});c.setAttribute('aria-pressed','true');if(c.parentNode.getAttribute('data-k')==='d')dest=c.textContent}});
+    sheet.querySelectorAll('.tier').forEach(function(b){b.onclick=function(){tier=+b.getAttribute('data-t');render()}});
+    var g=document.getElementById('go');if(g)g.onclick=start;
+    var c=document.getElementById('cancel');if(c)c.onclick=reset;
+    var d=document.getElementById('done');if(d)d.onclick=reset}
+  function reset(){clearInterval(timer);state='idle';place(0);render()}
+  function start(){state='run';render();var t0=Date.now(),near=false;
+    say(mode==='kids'?'Ride requested. Your child’s driver is on the way.':'Ride requested. Your driver is on the way.');
+    timer=setInterval(function(){var t=Math.min(1,(Date.now()-t0)/9000);place(t);
+      if(t>.65&&!near){near=true;say('Your driver is nearby.');var e=document.getElementById('eta');if(e)e.textContent='Driver is nearby'}
+      if(t>=1){clearInterval(timer);state='done';render();say(mode==='kids'?'Your child has arrived safely.':'You have arrived at your destination.')}},60)}
+  function showPane(p){document.querySelectorAll('.pane').forEach(function(x){x.classList.toggle('on',x.id==='p-'+p)});document.querySelectorAll('#tabs button').forEach(function(b){b.setAttribute('aria-current',b.getAttribute('data-p')===p)})}
+  document.querySelectorAll('#modes button').forEach(function(b){b.onclick=function(){mode=b.getAttribute('data-m');phone.setAttribute('data-mode',mode);document.querySelectorAll('#modes button').forEach(function(x){x.setAttribute('aria-pressed',x===b)});reset();showPane('home')}});
+  document.querySelectorAll('#tabs button').forEach(function(b){b.onclick=function(){showPane(b.getAttribute('data-p'))}});
+  document.querySelectorAll('#voices .chip').forEach(function(c){c.onclick=function(){document.querySelectorAll('#voices .chip').forEach(function(x){x.setAttribute('aria-pressed','false')});c.setAttribute('aria-pressed','true');voice=c.getAttribute('data-v')}});
+  document.getElementById('test').onclick=function(){say('Hi, this is your GO core voice. Your driver is nearby.')};
+  document.getElementById('pr').onclick=function(){wel.className='hide';say('Welcome to GO.')};
+  var wl=$('wl'),lo=$('lo'),lc=$('lc'),lr=$('lr'),busy=false;
+  function logo(){
+    if(busy||!lo.animate||matchMedia('(prefers-reduced-motion:reduce)').matches)return;
+    busy=true;var e='cubic-bezier(.2,.7,.2,1)',all=[];
+    lo.style.cssText=lc.style.cssText='transform-box:fill-box;transform-origin:center';
+    function A(n,k,o){var a=n.animate(k,o);all.push(a);return a}
+    A(lr,[{opacity:0},{opacity:1}],{duration:300,fill:'forwards'});
+    A(lo,[{transform:'scale(1)',opacity:1},{transform:'scale(.4)',opacity:0}],{duration:350,fill:'forwards',easing:e});
+    A(lc,[{opacity:0,transform:'scale(.4)'},{opacity:1,transform:'scale(1)'}],{duration:350,delay:150,fill:'both',easing:e});
+    A(lc,[{transform:'translate(0,0)'},{transform:'translate(0,35px)'}],{duration:300,delay:600,fill:'both',easing:e});
+    A(lc,[{transform:'translate(0,35px)'},{transform:'translate(200px,35px)'}],{duration:900,delay:950,fill:'both',easing:'cubic-bezier(.5,0,1,.6)'});
+    A(lr,[{opacity:1},{opacity:0}],{duration:400,delay:1850,fill:'forwards'});
+    A(lo,[{transform:'scale(.4)',opacity:0},{transform:'scale(1)',opacity:1}],{duration:500,delay:1900,fill:'forwards',easing:e});
+    setTimeout(function(){all.forEach(function(a){a.cancel()});busy=false},2500)}
+  wl.onclick=logo;wl.onkeydown=function(ev){if(ev.key==='Enter'||ev.key===' '){ev.preventDefault();logo()}};
+  var dS='off',dTot=0,dN=0,dT=null,dF=80,dst=document.getElementById('dst'),dsh=document.getElementById('dsheet'),dd=document.getElementById('driver');
+  function R(x){return 'R'+Math.round(x).toLocaleString('en-ZA')}
+  function $(i){return document.getElementById(i)}
+  function dNext(ms){setTimeout(function(){if(dS==='wait')dReq()},ms)}
+  function dOff(){clearInterval(dT);dS='off';dst.textContent='Offline';dst.style.cssText='background:#1b1b1d;color:var(--muted)';dRender()}
+  function dReq(){dS='req';dRender();var t=15;dT=setInterval(function(){t--;if($('dcd'))$('dcd').textContent=t+'s';if($('dbar'))$('dbar').style.width=(t/15*100)+'%';if(t<=0){clearInterval(dT);dS='wait';dRender();dNext(3000)}},1000)}
+  function dRender(){var h='';
+    if(dS==='off')h='<h3>You’re offline</h3><p class="note">Go online to start receiving trip requests.</p><button class="btn" id="da">Go online</button>';
+    else if(dS==='wait')h='<h3>Looking for trips</h3><p class="note">Stay near busy areas for faster requests.</p><button class="btn ghost" id="db">Go offline</button>';
+    else if(dS==='req')h='<div class="row"><h3>New trip</h3><b id="dcd">15s</b></div><div class="big metal">'+R(dF)+'</div><p class="note">Pickup: Bus rank, 1.2 km away<br>Drop-off: Hospital, 4.1 km trip</p><div class="bar"><i id="dbar"></i></div><button class="btn" id="dc">Accept</button><button class="btn red" id="dd">Decline</button>';
+    else if(dS==='trip')h='<h3>Trip in progress</h3><p class="note">Navigating to the hospital. Rider is in the car.</p><button class="btn" id="de">Complete trip</button>';
+    else h='<h3>Trip complete</h3><div class="big metal">'+R(dF*0.9)+'</div><p class="note">You keep 90% on GO Standard. Rider rating: 5 stars.</p><button class="btn" id="df">Back to driving</button>';
+    dsh.innerHTML=h;
+    if($('da'))$('da').onclick=function(){dS='wait';dst.textContent='Online';dst.style.cssText='';dRender();dNext(2200)};
+    if($('db'))$('db').onclick=dOff;
+    if($('dc'))$('dc').onclick=function(){clearInterval(dT);dS='trip';dRender()};
+    if($('dd'))$('dd').onclick=function(){clearInterval(dT);dS='wait';dRender();dNext(3000)};
+    if($('de'))$('de').onclick=function(){dTot+=dF*0.9;dN++;$('dtoday').textContent=R(dTot);$('dtn').textContent=dN+(dN===1?' trip':' trips');dS='done';dRender()};
+    if($('df'))$('df').onclick=function(){dS='wait';dRender();dNext(2500)}}
+  function dCalc(){var t=+$('dtrips').value,m=t*26*80,s=m*0.9,p=m*0.94-199,d=p-s;$('dtv').textContent=t;$('ds1').textContent=R(s)+' / month';$('ds2').textContent=R(p)+' / month';$('dpbox').className='plan'+(d>0?' best':'');$('dadv').textContent=d>0?'GO Plus pays you about '+R(d)+' more a month.':'GO Standard is better by about '+R(-d)+' a month.'}
+  $('dtrips').oninput=dCalc;dCalc();
+  document.querySelectorAll('#dtabs button').forEach(function(b){b.onclick=function(){var p=b.getAttribute('data-p');document.querySelectorAll('.dpane').forEach(function(x){x.classList.toggle('on',x.id==='d-'+p)});document.querySelectorAll('#dtabs button').forEach(function(x){x.setAttribute('aria-current',x===b)})}});
+  $('pd').onclick=function(){phone.setAttribute('data-mode','std');wel.className='hide';dd.className='';dRender()};
+  $('dsw').onclick=function(){dOff();dd.className='hide';phone.setAttribute('data-mode',mode);wel.className=''};
+  document.getElementById('sw').onclick=document.getElementById('rsw').onclick=function(){reset();showPane('home');wel.className='';document.getElementById('soon').innerHTML='&nbsp;'};
+  var so=$('sosov'),sc=$('sosc'),sT=null,sosBtn=$('sos');
+  function sosShow(n){sc.innerHTML='<div class="sosring" aria-hidden="true">'+n+'</div><h3 id="sost">Sending SOS in '+n+'</h3><p class="note">Your live location and trip details go to your trusted contacts and GO safety.</p><button class="btn" id="sosx" style="background:#fff">Cancel</button>';$('sosx').onclick=sosClose;$('sosx').focus()}
+  function sosSent(){sc.innerHTML='<div class="sosring ok" aria-hidden="true">'+'<svg class="ic"><use href="#i-check"/></svg></div><h3 id="sost">Help is on the way</h3><ul class="sosl"><li><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Live location shared with 2 trusted contacts</li><li><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>GO safety team alerted with your trip details</li><li><svg class="ic" aria-hidden="true"><use href="#i-check"/></svg>Driver plate and photo attached</li></ul><button class="btn ghost" id="sosx">I am safe, close</button>';$('sosx').onclick=sosClose;$('sosx').focus();say('Help is on the way. Your location has been shared.')}
+  function sosClose(){clearInterval(sT);so.className='hide';sosBtn.focus()}
+  sosBtn.onclick=function(){var n=5;so.className='';sosShow(n);clearInterval(sT);sT=setInterval(function(){n--;if(n<=0){clearInterval(sT);sosSent()}else sosShow(n)},1000)};
+  so.onkeydown=function(e){if(e.key==='Escape')sosClose()};
+  var shB=$('share'),shN=$('shn'),shOn=false;
+  shB.onclick=function(){shOn=!shOn;shB.setAttribute('aria-pressed',shOn);shB.querySelector('span').textContent=shOn?'Stop sharing':'Share live trip';shN.textContent=shOn?'Sharing your live trip with 2 trusted contacts.':''};
+  if('speechSynthesis' in window)speechSynthesis.getVoices();
+  render();
+})();
+</script>
+</body>
+</html>
